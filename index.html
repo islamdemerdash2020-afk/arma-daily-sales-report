@@ -931,6 +931,12 @@
   .rtbl .rgrand td{background:#087A3C}
   .kb-ic{box-shadow:0 3px 0 #055A2B}
   .shot.rp-sheet{box-shadow:none}
+
+  .reset-btn{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:9px;cursor:pointer;font:inherit;font-size:12.5px;font-weight:700;
+    background:rgba(229,57,53,.08);color:#C62828;border:1px solid rgba(229,57,53,.25);transition:.15s}
+  .reset-btn svg{width:15px;height:15px}
+  .reset-btn:hover{background:rgba(229,57,53,.14)}
+  .reset-btn.armed{background:#E53935;color:#fff;border-color:#E53935}
 </style>
 </head>
 <body class="login-mode">
@@ -1079,6 +1085,10 @@
       </div>
       <div class="sh-meta">
         <span class="pill p-r">8 تجزئة</span><span class="pill p-w">3 جملة</span>
+        <button class="reset-btn" id="resetDay" type="button" title="مسح أرقام اليوم مع الاحتفاظ بالأهداف والأسماء">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+          <span id="resetTxt">مسح بيانات اليوم</span>
+        </button>
       </div>
     </div>
     <div class="tbl-wrap">
@@ -1621,6 +1631,32 @@ function updateReports(){
   setTag('kCust',kpiV>0? totals.cust/kpiV*100 : 0, 'تغطية');         // محقق عملاء ÷ هدف KPIs
 }
 function repKey(){ return daysKey()+'_rep'; }
+/* ===== مسح المتغيرات اليومية مع الاحتفاظ بالثوابت =====
+   يُمسح: المؤشرات المالية، مبيعات اليوم، ما قبله، عدد العملاء، الزيارات الناجحة، تحصيل اليوم، محقق IN، خطة العمل والأهداف المحققة
+   لا يُمسح: أسماء المندوبين، الأهداف المالية، أيام العمل، عملاء خط السير، هدف عملاء KPIs */
+const DAILY_COLS=['today','prev','cust','visits','coll'];
+let resetArm=null;
+function resetDaily(){
+  MONEY.forEach(id=>$(id).value='');
+  store.set(daysKey()+'_m', Object.fromEntries(MONEY.map(k=>[k,''])));
+  document.querySelectorAll('#sbody tr.rep').forEach(tr=>DAILY_COLS.forEach(c=>{ tr.querySelector(`[data-f="${c}"]`).value=''; }));
+  $('kIn').value='';
+  document.querySelectorAll('.plan input').forEach(i=>{ i.value=''; i.closest('li').classList.remove('done'); });
+  recalc(); saveSheet(); saveRep(); updateReports();
+}
+function setResetLabel(s,armed){ $('resetTxt').textContent=s; $('resetDay').classList.toggle('armed',!!armed); }
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#resetDay')) return;
+  if(!resetArm){
+    setResetLabel('اضغط مرة أخرى للتأكيد',1);
+    resetArm=setTimeout(()=>{ resetArm=null; setResetLabel('مسح بيانات اليوم'); },3500);
+    return;
+  }
+  clearTimeout(resetArm); resetArm=null;
+  resetDaily();
+  setResetLabel('تم المسح ✓'); setTimeout(()=>setResetLabel('مسح بيانات اليوم'),1800);
+});
+
 function saveRep(){
   const d={kIn:$('kIn').value,kRoute:$('kRoute').value,kKpi:$('kKpi').value};
   document.querySelectorAll('.plan input').forEach(i=>d[i.dataset.pl]=i.value);
