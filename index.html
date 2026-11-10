@@ -951,6 +951,11 @@
   #regionBadge.img{width:auto;height:72px;border-radius:0;background:none}
   #regionBadge.img img{height:72px;width:auto;display:block;filter:drop-shadow(0 3px 4px rgba(0,0,0,.15))}
   @media (max-width:600px){ #regionBadge.img,#regionBadge.img img{height:56px} }
+
+  .rp-emb{padding:0 10px 0 14px;border-inline-end:1px solid #CFE2D6;margin-inline-end:4px;display:flex;align-items:center}
+  .rp-emb[hidden]{display:none}
+  .rp-emb img{height:58px;width:auto;display:block}
+  .shot .rp-emb img{height:66px}
 </style>
 </head>
 <body class="login-mode">
@@ -1230,6 +1235,7 @@
     </header>
 
     <div class="rp-info">
+      <div class="rp-emb" id="rpEmb" hidden></div>
       <div class="rp-cell"><small>اسم المنطقة</small><b id="rpRegion"></b></div>
       <div class="rp-cell"><small>كود الموزع</small><b id="rpDistCode"></b></div>
       <div class="rp-cell"><small>اسم الموزع</small><b id="rpDistName"></b></div>
@@ -1751,6 +1757,9 @@ function openReport(){
   $('rpRole').textContent=isAdmin?'مسؤول النظام':'مدير الوحدة';
   $('rpId').textContent=rec.code;
   $('rpRegion').textContent=rec.region;
+  { const key=(rec.region||'').replace('الجيزة','الجيزه'); const e=$('rpEmb');
+    if(!isAdmin && REGION_IMG[key]){ e.innerHTML=`<img src="data:image/webp;base64,${REGION_IMG[key]}" alt="شعار إقليم ${rec.region}">`; e.hidden=false; }
+    else { e.innerHTML=''; e.hidden=true; } }
   $('rpDistCode').textContent=isAdmin?'—':(rec.distCode||rec.code);
   $('rpDistName').textContent=rec.distributor;
   const b=+$('dBase').value||0, a=+$('dActual').value||0, r=b>0?a/b*100:0;
