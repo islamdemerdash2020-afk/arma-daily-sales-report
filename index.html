@@ -1319,8 +1319,10 @@ const EMPLOYEES = [
   ["100767","ابراهيم سعيد مصطفى سليمان","غرب الدلتا","محمد السيد جمال"],
   ["101474","حسام فاروق السيد عجم","غرب الدلتا","اشرف المنوفى"],
   ["100246","عمرو توفيق السيد عزيز","غرب الدلتا","اشرف المنوفى"],
-  ["100221","طارق محمد شبل حماد","غرب الدلتا","البندارى"]
-].map(([code,name,region,distributor])=>({code,name,region,distributor}));
+  ["100221","طارق محمد شبل حماد","غرب الدلتا","البندارى"],
+  /* كود موظف مربوط على وحدة بكود موزع مختلف: [كود الدخول، الاسم، الإقليم، الموزع، كود الموزع] */
+  ["102012","مصطفى أحمد","الإسكندرية","العوام","817"]
+].map(([code,name,region,distributor,distCode])=>({code,name,region,distributor,distCode:distCode||code}));
 /* ===== حسابات الأدمن ===== */
 const ADMINS = [
   {code:"102065", name:"مدير النظام", region:"كل الأقاليم", distributor:"كل الموزعين", role:"admin"}
@@ -1389,7 +1391,7 @@ function enterApp(u){
   /* تسجيل الوحدة التابعة للموظف من قاعدة البيانات */
   const unit = {
     region: rec.region,
-    distributorCode: isAdmin ? '—' : rec.code,
+    distributorCode: isAdmin ? '—' : (rec.distCode||rec.code),
     distributorName: rec.distributor,
     manager: rec.name
   };
@@ -1632,7 +1634,7 @@ function openReport(){
   $('rpRole').textContent=isAdmin?'مسؤول النظام':'مدير الوحدة';
   $('rpId').textContent=rec.code;
   $('rpRegion').textContent=rec.region;
-  $('rpDistCode').textContent=isAdmin?'—':rec.code;
+  $('rpDistCode').textContent=isAdmin?'—':(rec.distCode||rec.code);
   $('rpDistName').textContent=rec.distributor;
   const b=+$('dBase').value||0, a=+$('dActual').value||0, r=b>0?a/b*100:0;
   $('rpRatio').textContent=(Math.round(r*10)/10)+'%';
