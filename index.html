@@ -990,7 +990,7 @@
 
       <div class="row">
         <label class="check">
-          <input type="checkbox" id="remember">
+          <input type="checkbox" id="remember" checked>
           <span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
           تذكرني
         </label>
@@ -1408,6 +1408,13 @@ const store = {
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
+/* ذاكرة "تذكرني": localStorage مع نسخة احتياطية في Cookie لمدة سنة */
+const remember = {
+  set(v){ store.set('arma_user',v); try{ document.cookie='arma_user='+encodeURIComponent(JSON.stringify(v))+';max-age=31536000;path=/;SameSite=Lax'; }catch(_){} },
+  get(){ const s=store.get('arma_user'); if(s) return s;
+    try{ const m=document.cookie.match(/(?:^|;\s*)arma_user=([^;]*)/); return m?JSON.parse(decodeURIComponent(m[1])):null; }catch(_){ return null; } },
+  del(){ store.del('arma_user'); try{ document.cookie='arma_user=;max-age=0;path=/'; }catch(_){} }
+};
 const sess = {
   get(k){try{return JSON.parse(sessionStorage.getItem(k))}catch(e){return null}},
   set(k,v){try{sessionStorage.setItem(k,JSON.stringify(v))}catch(e){}},
@@ -1451,7 +1458,7 @@ $('loginForm').addEventListener('submit', e=>{
       shake(); return;
     }
     const user = {code:emp.code, name:emp.name, region:emp.region, distributor:emp.distributor, role:emp.role, email, loginAt:new Date().toISOString()};
-    if($('remember').checked){ store.set('arma_user', user); } else { store.del('arma_user'); }
+    if($('remember').checked){ remember.set(user); store.set('arma_last',{email,code:emp.code}); } else { remember.del(); store.del('arma_last'); }
     sess.set('arma_user', user);
     enterApp(user);
   }, 650);
@@ -1503,7 +1510,7 @@ function enterApp(u){
     manager: rec.name
   };
   u.unit = unit; sess.set('arma_user', u);
-  if(store.get('arma_user')) store.set('arma_user', u);
+  if(remember.get()) remember.set(u);
 
   document.body.classList.remove('login-mode');
   $('login').classList.add('hidden');
@@ -1914,19 +1921,22 @@ $('rpBack').addEventListener('click',()=>{ $('report').classList.add('hidden'); 
 
 
 $('logout').addEventListener('click', ()=>{
-  sess.del('arma_user'); store.del('arma_user');
+  sess.del('arma_user'); remember.del();
   document.body.classList.add('login-mode');
   $('app').classList.add('hidden'); $('report').classList.add('hidden'); $('login').classList.remove('hidden');
-  $('code').value=''; $('remember').checked=false; $('email').focus();
+  const last=store.get('arma_last'); $('email').value=last?last.email:''; $('code').value=last?last.code:''; $('remember').checked=true; $('email').focus();
 });
 
 /* ===== تذكرني: استرجاع الجلسة ===== */
 (function init(){
-  const saved = sess.get('arma_user') || store.get('arma_user');
+  const saved = sess.get('arma_user') || remember.get();
   if(saved && BY_CODE[saved.code]){
-    $('email').value = saved.email; $('code').value = saved.code; $('remember').checked = !!store.get('arma_user');
-    enterApp(saved);
-  } else { $('email').focus(); }
+    $('email').value = saved.email; $('code').value = saved.code; $('remember').checked = true;
+    enterApp(saved);                       // دخول تلقائي بدون كتابة الإيميل أو الكود
+  } else {
+    const last=store.get('arma_last'); if(last){ $('email').value=last.email; $('code').value=last.code; }
+    $('email').focus();
+  }
 })();
 </script>
 </body>
