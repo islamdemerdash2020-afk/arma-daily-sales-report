@@ -899,6 +899,15 @@
     transition:background-color 9999s ease-in-out 0s}
   .field.err .input-wrap input{background:#FFFFFF!important}
 
+
+  /* unit info: plain line, no cards */
+  .unit-grid{display:flex;flex-wrap:wrap;gap:0;padding:6px 0}
+  .unit-item{background:none;border:0;box-shadow:none;border-radius:0;padding:4px 18px;display:flex;align-items:center;gap:8px;border-inline-start:1px solid #D3E6DA}
+  .unit-item:first-child{border-inline-start:0;padding-inline-start:4px}
+  .unit-item small{display:inline;margin:0;font-size:13px;color:#4A5A51;font-weight:600}
+  .unit-item small::after{content:":"}
+  .unit-item strong{font-size:15px}
+  @media (max-width:600px){ .unit-item{border-inline-start:0;padding:4px 6px;flex:1 1 45%} }
 </style>
 </head>
 <body class="login-mode">
