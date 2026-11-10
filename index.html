@@ -937,6 +937,13 @@
   .reset-btn svg{width:15px;height:15px}
   .reset-btn:hover{background:rgba(229,57,53,.14)}
   .reset-btn.armed{background:#E53935;color:#fff;border-color:#E53935}
+
+  /* 3D reset button */
+  .reset-btn{height:34px;background:linear-gradient(180deg,#FFF5F5 0%,#FDE4E4 100%);border:1px solid #F2C4C4;
+    box-shadow:0 3px 0 #E8AFAF,0 6px 10px -6px rgba(198,40,40,.45);transition:transform .12s,box-shadow .12s}
+  .reset-btn:hover{background:linear-gradient(180deg,#FFF0F0,#FBDADA)}
+  .reset-btn:active{transform:translateY(3px);box-shadow:0 0 0 #E8AFAF}
+  .reset-btn.armed{background:linear-gradient(180deg,#EF5350,#E53935);border-color:#D32F2F;box-shadow:0 3px 0 #B71C1C,0 6px 10px -6px rgba(183,28,28,.5)}
 </style>
 </head>
 <body class="login-mode">
